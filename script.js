@@ -43,7 +43,7 @@ function processAnswer(answer) {
 function displayMessage(questionStatus, answerStatus) {
   const messageContainer = document.createElement('div');
   messageContainer.style.position = 'fixed';
-  messageContainer.style.top = '10px';
+  messageContainer.style.top = '-9999px';
   messageContainer.style.left = '10px';
   messageContainer.style.padding = '10px';
   messageContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
