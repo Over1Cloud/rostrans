@@ -40,26 +40,30 @@ function processAnswer(answer) {
   });
 }
 
-// Функция для отображения красивого уведомления о запуске скрипта на странице
+// Функция для отображения уведомления в стиле Apple на странице
 function displayMessage() {
   const messageContainer = document.createElement('div');
   messageContainer.style.position = 'fixed';
   messageContainer.style.top = '20px';
-  messageContainer.style.right = '20px';
+  messageContainer.style.left = '50%';
+  messageContainer.style.transform = 'translateX(-50%)';
   messageContainer.style.padding = '15px';
-  messageContainer.style.backgroundColor = '#333';
+  messageContainer.style.backgroundColor = '#000';
   messageContainer.style.color = '#fff';
   messageContainer.style.borderRadius = '10px';
   messageContainer.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
   messageContainer.style.zIndex = '9999';
+  messageContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
+  messageContainer.style.fontSize = '16px';
   messageContainer.innerHTML = `
-    <p>Скрипт запущен</p>
+    <p style="margin: 0;">Скрипт запущен</p>
   `;
   document.body.appendChild(messageContainer);
   setTimeout(() => {
     messageContainer.remove();
-  }, 3000);
+  }, 2000);
 }
+
 
 
 // Функция для выполнения парсинга и действий
