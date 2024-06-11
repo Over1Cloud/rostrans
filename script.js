@@ -39,25 +39,27 @@ function processAnswer(answer) {
   });
 }
 
-// Функция для отображения сообщения на странице
-function displayMessage(questionStatus, answerStatus) {
+// Функция для отображения красивого уведомления о запуске скрипта на странице
+function displayMessage() {
   const messageContainer = document.createElement('div');
   messageContainer.style.position = 'fixed';
-  messageContainer.style.top = '-9999px';
-  messageContainer.style.left = '10px';
-  messageContainer.style.padding = '10px';
-  messageContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-  messageContainer.style.border = '1px solid #ccc';
+  messageContainer.style.top = '20px';
+  messageContainer.style.right = '20px';
+  messageContainer.style.padding = '15px';
+  messageContainer.style.backgroundColor = '#333';
+  messageContainer.style.color = '#fff';
+  messageContainer.style.borderRadius = '10px';
+  messageContainer.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
   messageContainer.style.zIndex = '9999';
   messageContainer.innerHTML = `
-    <p>${questionStatus}</p>
-    <p>${answerStatus}</p>
+    <p>Скрипт запущен</p>
   `;
   document.body.appendChild(messageContainer);
   setTimeout(() => {
     messageContainer.remove();
   }, 3000);
 }
+
 
 // Функция для выполнения парсинга и действий
 async function parseAndProcess() {
