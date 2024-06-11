@@ -40,9 +40,20 @@ function processAnswer(answer) {
   });
 }
 
+// Функция для удаления уведомления
+function removeMessage() {
+  const messageContainer = document.getElementById('notification');
+  if (messageContainer) {
+    messageContainer.remove();
+  }
+}
+
 // Функция для отображения уведомления в стиле Apple на странице
-function displayMessage() {
+function displayMessage(status, message) {
+  removeMessage();
+
   const messageContainer = document.createElement('div');
+  messageContainer.id = 'notification';
   messageContainer.style.position = 'fixed';
   messageContainer.style.top = '20px';
   messageContainer.style.left = '50%';
@@ -56,12 +67,10 @@ function displayMessage() {
   messageContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
   messageContainer.style.fontSize = '16px';
   messageContainer.innerHTML = `
-    <p style="margin: 0;">Скрипт запущен</p>
+    <p style="margin: 0;">${status}</p>
+    <p style="margin: 0;">${message}</p>
   `;
   document.body.appendChild(messageContainer);
-  setTimeout(() => {
-    messageContainer.remove();
-  }, 2000);
 }
 
 
