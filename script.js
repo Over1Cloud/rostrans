@@ -1,17 +1,22 @@
+// Переменная-флаг, чтобы отслеживать, было ли уже отображено уведомление
+let notificationShown = false;
+
 // Функция для загрузки JSON из URL
 async function fetchJSON(url) {
-  // Показываем уведомление о запуске загрузки JSON
-  displayMessage("Загрузка данных...", "");
+  if (!notificationShown) {
+    // Показываем уведомление о запуске загрузки JSON
+    displayMessage("Загрузка данных...");
+    notificationShown = true; // Устанавливаем флаг в true, чтобы уведомление отображалось только один раз
+  }
 
-  const response = await fetch(url);
-  const data = await response.json();
-
-  // Удаляем уведомление после успешной загрузки JSON
-  removeMessage();
-
-  return data;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error("Ошибка загрузки данных: " + error.message);
+  }
 }
-
 
 // Функция для проверки совпадения вопроса
 function checkQuestion(text, answers) {
@@ -24,41 +29,27 @@ function checkQuestion(text, answers) {
 }
 
 // Функция для выполнения действий на основе найденного ответа
-function processAnswer(answer) {
-  return new Promise((resolve, reject) => {
-    if (answer) {
-      const answerElement = document.evaluate(`//*[contains(text(), "${answer}")]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-      if (answerElement) {
-        const inputElement = answerElement.closest('.choice-view__choice-container').querySelector('input[type="radio"]');
-        if (inputElement) {
-          inputElement.click();
-          inputElement.setAttribute('aria-checked', 'true');
-          displayMessage("Ответ найден", "Ответ найден на сайте");
-          resolve();
-        } else {
-          reject("Не удалось найти соответствующий input элемент");
-        }
-      } else {
-        reject("Ответ не найден на сайте");
-      }
-    } else {
-      reject("Ответ не найден в базе данных");
-    }
-  });
-}
-
-// Функция для удаления уведомления
-function removeMessage() {
-  const messageContainer = document.getElementById('notification');
-  if (messageContainer) {
-    messageContainer.remove();
+async function processAnswer(answer) {
+  if (!answer) {
+    throw new Error("Ответ не найден в базе данных");
   }
+
+  const answerElement = document.evaluate(`//*[contains(text(), "${answer}")]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  if (!answerElement) {
+    throw new Error("Ответ не найден на сайте");
+  }
+
+  const inputElement = answerElement.closest('.choice-view__choice-container').querySelector('input[type="radio"]');
+  if (!inputElement) {
+    throw new Error("Не удалось найти соответствующий input элемент");
+  }
+
+  inputElement.click();
+  inputElement.setAttribute('aria-checked', 'true');
 }
 
-// Функция для отображения уведомления в стиле Apple на странице
-function displayMessage(status, message) {
-  removeMessage();
-
+// Функция для отображения уведомления на странице
+function displayMessage(status) {
   const messageContainer = document.createElement('div');
   messageContainer.id = 'notification';
   messageContainer.style.position = 'fixed';
@@ -73,30 +64,25 @@ function displayMessage(status, message) {
   messageContainer.style.zIndex = '9999';
   messageContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
   messageContainer.style.fontSize = '16px';
-  messageContainer.innerHTML = `
-    <p style="margin: 0;">${status}</p>
-    <p style="margin: 0;">${message}</p>
-  `;
+  messageContainer.textContent = status;
   document.body.appendChild(messageContainer);
+  
+  // Удаляем уведомление через 2 секунды
+  setTimeout(() => {
+    messageContainer.remove();
+  }, 2000);
 }
-
-
 
 // Функция для выполнения парсинга и действий
 async function parseAndProcess() {
-  const data = await fetchJSON('https://raw.githubusercontent.com/Over1Cloud/rostrans/main/answers.json');
-  const textOnPage = document.body.innerText;
-  const answer = checkQuestion(textOnPage, data);
-
   try {
+    const data = await fetchJSON('https://raw.githubusercontent.com/Over1Cloud/rostrans/main/answers.json');
+    const textOnPage = document.body.innerText;
+    const answer = checkQuestion(textOnPage, data);
     await processAnswer(answer);
   } catch (error) {
-    displayMessage("Ошибка", error);
+    displayMessage("Ошибка: " + error.message);
   }
-
-  // Рекурсивный вызов функции для ожидания следующего вопроса
-  await new Promise(resolve => setTimeout(resolve, 0));
-  parseAndProcess();
 }
 
 // Вызов функции для парсинга и выполнения действий
