@@ -1,9 +1,17 @@
 // Функция для загрузки JSON из URL
 async function fetchJSON(url) {
+  // Показываем уведомление о запуске загрузки JSON
+  displayMessage("Загрузка данных...", "");
+
   const response = await fetch(url);
   const data = await response.json();
+
+  // Удаляем уведомление после успешной загрузки JSON
+  removeMessage();
+
   return data;
 }
+
 
 // Функция для проверки совпадения вопроса
 function checkQuestion(text, answers) {
