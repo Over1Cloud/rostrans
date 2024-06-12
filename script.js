@@ -5,15 +5,41 @@ async function fetchJSON(url) {
   return data;
 }
 
-// Функция для проверки совпадения вопроса
 function checkQuestion(text, answers) {
   for (let i = 0; i < answers.length; i++) {
-    if (text.includes(answers[i].question)) {
+    const question = answers[i].question.toLowerCase(); // Преобразуем вопрос в нижний регистр для более гибкого сравнения
+    const textLower = text.toLowerCase(); // Преобразуем весь текст вопроса в нижний регистр
+
+    // Если вопрос совпадает точно, возвращаем ответ
+    if (textLower.includes(question)) {
       return answers[i].answer;
     }
+
+    // Если вопрос совпадает с небольшой разницей, например, с разницей в 2-3 символа
+    if (Math.abs(textLower.length - question.length) <= 3) {
+      // Создаем массив символов для вопроса и текста вопроса
+      const questionChars = question.split('');
+      const textChars = textLower.split('');
+
+      // Сравниваем символы
+      let differences = 0;
+      for (let j = 0; j < Math.min(questionChars.length, textChars.length); j++) {
+        if (questionChars[j] !== textChars[j]) {
+          differences++;
+        }
+      }
+
+      // Если количество различных символов не превышает 3, считаем, что вопрос совпадает
+      if (differences <= 3) {
+        return answers[i].answer;
+      }
+    }
   }
+
+  // Если ни один вопрос не совпал, возвращаем null
   return null;
 }
+
 
 // Функция для выполнения действий на основе найденного ответа
 function processAnswer(answer) {
