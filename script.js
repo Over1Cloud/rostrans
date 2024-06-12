@@ -43,7 +43,7 @@ function processAnswer(answer) {
 function displayMessage(questionStatus, answerStatus) {
   const messageContainer = document.createElement('div');
   messageContainer.style.position = 'fixed';
-  messageContainer.style.top = '-9999px';
+  messageContainer.style.top = '10000px';
   messageContainer.style.left = '10px';
   messageContainer.style.padding = '10px';
   messageContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
@@ -59,6 +59,27 @@ function displayMessage(questionStatus, answerStatus) {
   }, 3000);
 }
 
+function highlightCorrectAnswer(correctAnswer) {
+  const answerElement = document.evaluate(`//*[contains(text(), "${correctAnswer}")]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  if (answerElement) {
+    const itemElement = answerElement.closest('.item');
+    if (itemElement) {
+      itemElement.style.backgroundColor = '#000000'; // Устанавливаем фоновый цвет элемента в черный
+      answerElement.style.backgroundImage = 'linear-gradient(91.88deg, rgba(177, 255, 100, 1) 0%, rgba(83, 245, 255, 1) 100%)';
+      answerElement.style.webkitBackgroundClip = 'text';
+      answerElement.style.webkitTextFillColor = 'transparent';
+      answerElement.style.mixBlendMode = 'difference';
+      displayMessage("Ответ выделен", "Правильный ответ выделен градиентом");
+    } else {
+      displayMessage("Ошибка", "Не удалось найти элемент для выделения");
+    }
+  } else {
+    displayMessage("Ошибка", "Правильный ответ не найден на сайте");
+  }
+}
+
+
+
 // Функция для выполнения парсинга и действий
 async function parseAndProcess() {
   const data = await fetchJSON('https://raw.githubusercontent.com/Over1Cloud/rostrans/main/answers.json');
@@ -69,11 +90,16 @@ async function parseAndProcess() {
     await processAnswer(answer);
   } catch (error) {
     displayMessage("Ошибка", error);
+
+    // Проверка наличия элемента с классом component_base submit mobile
+    const submitButton = document.querySelector('.component_base.submit.mobile');
+    if (submitButton && answer) {
+      highlightCorrectAnswer(answer);
+    }
   }
 
   // Рекурсивный вызов функции для ожидания следующего вопроса
-  await new Promise(resolve => setTimeout(resolve, 0));
-  parseAndProcess();
+  setTimeout(parseAndProcess, 1000); // Установить задержку в 1 секунду для предотвращения возможных проблем с производительностью
 }
 
 // Вызов функции для парсинга и выполнения действий
