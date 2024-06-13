@@ -2893,29 +2893,34 @@ function checkQuestion(text, answers) {
     return null;
 }
 
-// Функция для выполнения действий на основе найденного ответа
 function processAnswer(answer) {
     return new Promise((resolve, reject) => {
         if (answer) {
             // Добавляем "!" к правильному ответу
-            const modifiedAnswer = answer + "---";
+            const modifiedAnswer = answer + "";
 
             // Проверка наличия элемента с текстом правильного ответа на странице
-            const answerElement = document.evaluate(`//*[contains(text(), "${answer}")]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-            if (answerElement) {
-                // Добавляем "!" к тексту ответа на сайте
+            const answerElements = document.evaluate(`//*[contains(text(), "${answer}")]`, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+
+            // Проходимся по всем найденным элементам и модифицируем их стиль
+            for (let i = 0; i < answerElements.snapshotLength; i++) {
+                const answerElement = answerElements.snapshotItem(i);
+                
+                // Модификация стиля элемента
                 answerElement.textContent = modifiedAnswer;
+                answerElement.style.color = 'green';
+                answerElement.style.fontWeight = 'bold';
 
                 console.log(`Правильный ответ на сайте изменен на: ${modifiedAnswer}`);
-                resolve();
-            } else {
-                reject("Ответ не найден на сайте");
             }
+
+            resolve();
         } else {
             reject("Ответ не найден в базе данных");
         }
     });
 }
+
 
 // Функция для выполнения парсинга и обработки
 async function parseAndProcess() {
